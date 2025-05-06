@@ -15,6 +15,15 @@ const server = Bun.serve({
 			});
 		}
 
+		// Handle CSS files with correct MIME type
+		if (path.endsWith(".css")) {
+			return new Response(Bun.file(`./comp${path}`), {
+				headers: {
+					"Content-Type": "text/css",
+				},
+			});
+		}
+
 		if (path === "/home") {
 			// Creates a new `ServerSentEventGenerator` instance
 			return ServerSentEventGenerator.stream(req, async (stream) => {

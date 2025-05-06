@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "bun run --watch server/index.ts"
+    "start": "bun run --watch index.ts"
   },
   "dependencies": {
     "type-fest": "^4.41.0"

@@ -1,6 +1,6 @@
 import {
     DefaultMapping,
-  } from "./types.ts";
+  } from "../types.ts";
 
   import type {
     DatastarEventOptions,
@@ -9,12 +9,12 @@ import {
     FragmentOptions,
     MergeFragmentsOptions,
     MergeSignalsOptions,
-  } from "./types.ts";
+  } from "../types.ts";
   
   import {
     DefaultExecuteScriptAttributes,
     DefaultSseRetryDurationMs,
-  } from "./consts.ts";
+  } from "../consts.ts";
   
   import type { Jsonifiable } from "type-fest";
   

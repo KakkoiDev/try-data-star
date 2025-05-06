@@ -1,5 +1,4 @@
-import { VERSION } from "./consts.js";
-import { ServerSentEventGenerator } from "./serverSentEventGenerator.js";
+import { ServerSentEventGenerator } from "./lib/serverSentEventGenerator.js";
 import type { Jsonifiable } from "type-fest";
 
 //   `<html><head><script type="module" src="https://cdn.jsdelivr.net/gh/starfederation/datastar@v${VERSION}/bundles/datastar.js"></script></head><body><div id="toMerge" data-signals-foo="'World'" data-on-load="@get('/merge')">Hello</div></body></html>`,

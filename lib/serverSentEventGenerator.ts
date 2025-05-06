@@ -1,4 +1,4 @@
-import { DatastarEventOptions, EventType, sseHeaders } from "./types.ts";
+import { DatastarEventOptions, EventType, sseHeaders } from "../types.ts";
 
 import { ServerSentEventGenerator as AbstractSSEGenerator } from "./abstractServerSentEventGenerator.ts";
 

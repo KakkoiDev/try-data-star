@@ -1,13 +1,12 @@
-import { DatastarEventOptions, EventType, sseHeaders } from "../types.ts";
+import { sseHeaders } from "../types.ts";
+import type { DatastarEventOptions, EventType } from "../types.ts";
 
 import { ServerSentEventGenerator as AbstractSSEGenerator } from "./abstractServerSentEventGenerator.ts";
 
-import { IncomingMessage, ServerResponse } from "node:http";
-import process from "node:process";
 import type { Jsonifiable } from "type-fest";
 
 function isRecord(obj: unknown): obj is Record<string, Jsonifiable> {
-  return typeof obj === "object" && obj !== null;
+	return typeof obj === "object" && obj !== null;
 }
 
 /**
@@ -16,142 +15,148 @@ function isRecord(obj: unknown): obj is Record<string, Jsonifiable> {
  * Cannot be instantiated directly, you must use the stream static method.
  */
 export class ServerSentEventGenerator extends AbstractSSEGenerator {
-  protected req: IncomingMessage;
-  protected res: ServerResponse;
+	private controller: ReadableStreamDefaultController;
 
-  protected constructor(req: IncomingMessage, res: ServerResponse) {
-    super();
-    this.req = req;
-    this.res = res;
+	protected constructor(controller: ReadableStreamDefaultController) {
+		super();
+		this.controller = controller;
+	}
 
-    this.res.writeHead(200, sseHeaders);
-  }
+	/**
+	 * Initializes the server-sent event generator and executes the onStart callback.
+	 *
+	 * @param req - The Web API Request object.
+	 * @param onStart - A function that will be passed the initialized ServerSentEventGenerator class as it's first parameter.
+	 * @param options? - An object that can contain onError and onCancel callbacks as well as a keepalive boolean.
+	 * @returns A Response object with the SSE stream
+	 */
+	static stream(
+		req: Request,
+		onStart: (stream: ServerSentEventGenerator) => Promise<void> | void,
+		options?: Partial<{
+			onError: (error: unknown) => Promise<void> | void;
+			onAbort: () => Promise<void> | void;
+			keepalive: boolean;
+		}>,
+	): Response {
+		let streamController: ReadableStreamDefaultController;
 
-  /**
-   * Initializes the server-sent event generator and executes the onStart callback.
-   *
-   * @param req - The NodeJS request object.
-   * @param res - The NodeJS response object.
-   * @param onStart - A function that will be passed the initialized ServerSentEventGenerator class as it's first parameter.
-   * @param options? - An object that can contain onError and onCancel callbacks as well as a keepalive boolean.
-   * The onAbort callback will be called whenever the request is aborted
-   *
-   * The onError callback will be called whenever an error is met. If provided, the onAbort callback will also be executed.
-   * If an onError callback is not provided, then the stream will be ended and the error will be thrown up.
-   *
-   * The stream is always closed after the onStart callback ends.
-   * If onStart is non blocking, but you still need the stream to stay open after it is called,
-   * then the keepalive option will maintain it open until the request is aborted by the client.
-   */
-  static async stream(
-    req: IncomingMessage,
-    res: ServerResponse,
-    onStart: (stream: ServerSentEventGenerator) => Promise<void> | void,
-    options?: Partial<{
-      onError: (error: unknown) => Promise<void> | void;
-      onAbort: () => Promise<void> | void;
-      keepalive: boolean;
-    }>,
-  ): Promise<void> {
-    const generator = new ServerSentEventGenerator(req, res);
+		const stream = new ReadableStream({
+			start(controller) {
+				streamController = controller;
 
-    req.on("close", async () => {
-      const onAbort = options?.onAbort ? options.onAbort() : null;
-      if (onAbort instanceof Promise) await onAbort;
+				const generator = new ServerSentEventGenerator(controller);
 
-      res.end();
-    });
+				try {
+					// Execute the onStart callback
+					const result = onStart(generator);
+					if (result instanceof Promise) {
+						result.catch((error) => {
+							if (options?.onError) {
+								options.onError(error);
+							}
+							if (!options?.keepalive) {
+								controller.close();
+							}
+						});
+					}
 
-    try {
-      const stream = onStart(generator);
-      if (stream instanceof Promise) await stream;
-      if (!options?.keepalive) {
-        res.end();
-      }
-    } catch (error: unknown) {
-      const onAbort = options?.onAbort ? options.onAbort() : null;
-      if (onAbort instanceof Promise) await onAbort;
+					if (!options?.keepalive && !(result instanceof Promise)) {
+						controller.close();
+					}
+				} catch (error) {
+					if (options?.onError) {
+						options.onError(error);
+					}
+					controller.close();
+				}
+			},
+			cancel() {
+				if (options?.onAbort) {
+					options.onAbort();
+				}
+			},
+		});
 
-      if (options?.onError) {
-        const onError = options.onError(error);
-        if (onError instanceof Promise) await onError;
-        res.end();
-      } else {
-        res.end();
-        throw error;
-      }
-    }
-  }
+		return new Response(stream, {
+			headers: sseHeaders as Record<string, string>,
+		});
+	}
 
-  protected override send(
-    event: EventType,
-    dataLines: string[],
-    options: DatastarEventOptions,
-  ): string[] {
-    const eventLines = super.send(event, dataLines, options);
+	protected override send(
+		event: EventType,
+		dataLines: string[],
+		options: DatastarEventOptions,
+	): string[] {
+		const eventLines = super.send(event, dataLines, options);
 
-    eventLines.forEach((line) => {
-      this.res.write(line);
-    });
+		for (const line of eventLines) {
+			this.controller.enqueue(line);
+		}
 
-    return eventLines;
-  }
+		return eventLines;
+	}
 
-  /**
-   * Reads client sent signals based on HTTP methods
-   *
-   * @params request - The NodeJS Request object.
-   *
-   * @returns An object containing a success boolean and either the client's signals or an error message.
-   */
-  static async readSignals(request: IncomingMessage): Promise<
-    | { success: true; signals: Record<string, Jsonifiable> }
-    | { success: false; error: string }
-  > {
-    if (request.method === "GET") {
-      const url = new URL(
-        `http://${process.env.HOST ?? "localhost"}${request.url}`,
-      );
-      const params = url.searchParams;
+	/**
+	 * Reads client sent signals based on HTTP methods
+	 *
+	 * @params request - The Request object.
+	 *
+	 * @returns An object containing a success boolean and either the client's signals or an error message.
+	 */
+	static async readSignals(
+		request: Request,
+	): Promise<
+		| { success: true; signals: Record<string, Jsonifiable> }
+		| { success: false; error: string }
+	> {
+		if (request.method === "GET") {
+			const url = new URL(request.url);
+			const params = url.searchParams;
 
-      try {
-        if (params.has("datastar")) {
-          const signals = JSON.parse(params.get("datastar")!);
-          if (isRecord(signals)) {
-            return { success: true, signals };
-          } else throw new Error("Datastar param is not a record");
-        } else throw new Error("No datastar object in request");
-      } catch (e: unknown) {
-        if (isRecord(e) && "message" in e && typeof e.message === "string") {
-          return { success: false, error: e.message };
-        } else {return {
-            success: false,
-            error: "unknown error when parsing request",
-          };}
-      }
-    }
-    const body = await new Promise((resolve, _) => {
-      let chunks = "";
-      request.on("data", (chunk) => {
-        chunks += chunk;
-      });
-      request.on("end", () => {
-        resolve(chunks);
-      });
-    });
-    let parsedBody = {};
-    try {
-      if (typeof body !== "string") throw Error("body was not a string");
-      parsedBody = JSON.parse(body);
-    } catch (e: unknown) {
-      if (isRecord(e) && "message" in e && typeof e.message === "string") {
-        return { success: false, error: e.message };
-      } else {return {
-          success: false,
-          error: "unknown error when parsing request",
-        };}
-    }
+			try {
+				if (params.has("datastar")) {
+					const datastarParam = params.get("datastar");
+					if (!datastarParam) {
+						throw new Error("Datastar param is empty");
+					}
 
-    return { success: true, signals: parsedBody };
-  }
+					const signals = JSON.parse(datastarParam);
+					if (isRecord(signals)) {
+						return { success: true, signals };
+					}
+
+					throw new Error("Datastar param is not a record");
+				}
+
+				throw new Error("No datastar object in request");
+			} catch (e: unknown) {
+				if (isRecord(e) && "message" in e && typeof e.message === "string") {
+					return { success: false, error: e.message };
+				}
+
+				return {
+					success: false,
+					error: "unknown error when parsing request",
+				};
+			}
+		}
+
+		try {
+			const parsedBody = await request.json();
+			return {
+				success: true,
+				signals: parsedBody as Record<string, Jsonifiable>,
+			};
+		} catch (e: unknown) {
+			if (isRecord(e) && "message" in e && typeof e.message === "string") {
+				return { success: false, error: e.message };
+			}
+
+			return {
+				success: false,
+				error: "unknown error when parsing request",
+			};
+		}
+	}
 }

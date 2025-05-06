@@ -19,8 +19,31 @@ const server = Bun.serve({
 			// Creates a new `ServerSentEventGenerator` instance
 			return ServerSentEventGenerator.stream(req, async (stream) => {
 				// Merges HTML fragments into the DOM.
-				const fileContent = await Bun.file("./comp/home.html").text();
-				stream.mergeFragments(fileContent);
+				stream.mergeFragments(/*html*/ `
+        <main id="main">
+          <main-component title="home">
+          <div>
+            <p>This is the home page.</p>
+          </div>
+          </main-component>
+        </main>
+        `);
+			});
+		}
+
+		if (path === "/about") {
+			// Creates a new `ServerSentEventGenerator` instance
+			return ServerSentEventGenerator.stream(req, async (stream) => {
+				// Merges HTML fragments into the DOM.
+				stream.mergeFragments(/*html*/ `
+        <main id="main">
+          <main-component title="about">
+          <div>
+            <p>This is the about page.</p>
+          </div>
+          </main-component>
+        </main>
+        `);
 			});
 		}
 

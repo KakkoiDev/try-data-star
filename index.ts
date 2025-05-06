@@ -4,8 +4,18 @@ const server = Bun.serve({
 	port: 3000,
 	fetch(req) {
 		const url = new URL(req.url);
+		const path = url.pathname;
 
-		if (url.pathname === "/home") {
+		// Handle JavaScript/TypeScript files with correct MIME type
+		if (path.endsWith(".js") || path.endsWith(".ts")) {
+			return new Response(Bun.file(`./comp${path}`), {
+				headers: {
+					"Content-Type": "application/javascript",
+				},
+			});
+		}
+
+		if (path === "/home") {
 			// Creates a new `ServerSentEventGenerator` instance
 			return ServerSentEventGenerator.stream(req, async (stream) => {
 				// Merges HTML fragments into the DOM.

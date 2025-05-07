@@ -6,20 +6,24 @@ const server = Bun.serve({
 		const url = new URL(req.url);
 		const path = url.pathname;
 
-		// Handle JavaScript/TypeScript files with correct MIME type
-		if (path.endsWith(".js") || path.endsWith(".ts")) {
-			return new Response(Bun.file(`./comp${path}`), {
-				headers: {
-					"Content-Type": "application/javascript",
-				},
-			});
-		}
+		// Handle files with correct MIME type
+		if (/[\w\/]+\.\w+/.test(path)) {
+			let mimeType = "text/plain";
+			const extension = path.split(".").pop();
 
-		// Handle CSS files with correct MIME type
-		if (path.endsWith(".css")) {
+			switch (extension) {
+				case "js":
+				case "ts":
+					mimeType = "application/javascript";
+					break;
+				case "css":
+					mimeType = "text/css";
+					break;
+			}
+
 			return new Response(Bun.file(`./comp${path}`), {
 				headers: {
-					"Content-Type": "text/css",
+					"Content-Type": mimeType,
 				},
 			});
 		}

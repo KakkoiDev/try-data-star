@@ -8,28 +8,30 @@ body {
 	font-family: sans-serif;
 }
 
-.red {
-	background: red;
+main {
+	padding: 20px;
 }
-
 aside {
 	background: rgb(52, 47, 47);
-	width: 300px;
+	width: 200px;
 	min-height: 100vh;
 }
 
-navbar-component::part(navbar) {
-	list-style-type: none;
+/* Add styles for the navigation */
+.navbar {
+	list-style: none;
 	padding: 0;
 	margin: 0;
+	background-color: #333;
 }
 
-navbar-component::part(nav-item) {
-	border-bottom: 1px solid white;
-	padding: 10px;
+.nav-item {
+	padding: 10px 15px;
+	color: white;
 	cursor: pointer;
+	border-bottom: 1px solid white;
 }
 
-navbar-component::part(nav-item):hover {
-	background: rgb(93, 84, 84);
+.nav-item:hover {
+	background-color: #555;
 }

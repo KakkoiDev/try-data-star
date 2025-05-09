@@ -1,8 +1,8 @@
 {
   "scripts": {
     "start": "bun run --watch index.ts",
-    "db:setup": "bun run ./lib/db-setup.ts",
-    "db:seed": "bun run ./lib/db-seed.ts"
+    "db:setup": "bun run ./lib/dbSetup.ts",
+    "db:seed": "bun run ./lib/dbSeed.ts"
   },
   "dependencies": {
     "type-fest": "^4.41.0"

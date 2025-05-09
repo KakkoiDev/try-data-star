@@ -41,7 +41,7 @@ const server = Bun.serve({
 		switch (path) {
 			case "/home": {
 				// get the users from the database using the shared connection
-				const user = db.query("SELECT * FROM users").all() as User[];
+				const user = db.query("SELECT * FROM users LIMIT 10").all() as User[];
 				console.log(user);
 				// Creates a new `ServerSentEventGenerator` instance
 				return ServerSentEventGenerator.stream(req, (stream) => {
@@ -51,7 +51,19 @@ const server = Bun.serve({
           <main-component title="home">
           <div>
             <p>This is the home page.</p>
-			${user.map((user) => `<p>${user.username}</p>`).join("")}
+			<table>
+				<thead>
+					<tr>
+						<th>Username</th>
+						<th>Email</th>
+						<th>Created At</th>
+						<th>Updated At</th>
+					</tr>
+				</thead>
+				<tbody>
+					${user.map((user) => `<tr><td>${user.username}</td><td>${user.email}</td><td>${user.created_at}</td><td>${user.updated_at}</td></tr>`).join("")}
+				</tbody>
+			</table>
           </div>
           </main-component>
         </main>

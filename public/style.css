@@ -6,9 +6,11 @@ body {
 	padding: 0;
 	margin: 0;
 	font-family: sans-serif;
+	width: 100%;
 }
 
 main {
+	flex-grow: 1;
 	padding: 20px;
 }
 aside {
@@ -34,4 +36,18 @@ aside {
 
 .nav-item:hover {
 	background-color: #555;
+}
+
+/* Add styles for the table */
+table {
+	width: 100%;
+	border-collapse: collapse;
+	border: 1px solid white;
+	overflow-x: auto;
+}
+
+th,
+td {
+	border: 1px solid white;
+	padding: 10px;
 }

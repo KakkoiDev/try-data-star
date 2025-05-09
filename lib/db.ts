@@ -54,6 +54,8 @@ export async function setupDatabase() {
 				console.error(`Error applying migration ${migrationFile}:`, error);
 				throw error;
 			}
+		} else {
+			console.log(`Migration already applied: ${migrationFile}`);
 		}
 	}
 
@@ -109,6 +111,8 @@ export async function seedDatabase() {
 				console.error(`Error applying seed ${seedFile}:`, error);
 				throw error;
 			}
+		} else {
+			console.log(`Seed already applied: ${seedFile}`);
 		}
 	}
 }

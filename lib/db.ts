@@ -1,14 +1,11 @@
 import { Database } from "bun:sqlite";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
+import { DB_PATH, MIGRATIONS_DIR, SEEDS_DIR } from "../consts.ts";
 
-const DB_PATH = "./db/database.sqlite";
-const MIGRATIONS_DIR = "./db/migrations";
-const SEEDS_DIR = "./db/seeds";
+export const db = new Database(DB_PATH);
 
 export async function setupDatabase() {
-	const db = new Database(DB_PATH);
-
 	// Create migrations table if it doesn't exist
 	db.run(`
     CREATE TABLE IF NOT EXISTS migrations (

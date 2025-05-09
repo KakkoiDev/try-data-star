@@ -1,5 +1,5 @@
 import { ServerSentEventGenerator } from "./lib/serverSentEventGenerator.js";
-import { Database } from "bun:sqlite";
+import { db } from "./lib/db.ts";
 import type { User } from "./types.ts";
 
 const server = Bun.serve({
@@ -40,8 +40,7 @@ const server = Bun.serve({
 		// Handle routes using switch statement
 		switch (path) {
 			case "/home": {
-				const db = new Database("./db/database.sqlite");
-				// get the user from the database
+				// get the users from the database using the shared connection
 				const user = db.query("SELECT * FROM users").all() as User[];
 				console.log(user);
 				// Creates a new `ServerSentEventGenerator` instance

@@ -28,11 +28,13 @@ const server = Bun.serve({
 			});
 		}
 
-		if (path === "/home") {
-			// Creates a new `ServerSentEventGenerator` instance
-			return ServerSentEventGenerator.stream(req, async (stream) => {
-				// Merges HTML fragments into the DOM.
-				stream.mergeFragments(/*html*/ `
+		// Handle routes using switch statement
+		switch (path) {
+			case "/home":
+				// Creates a new `ServerSentEventGenerator` instance
+				return ServerSentEventGenerator.stream(req, (stream) => {
+					// Merges HTML fragments into the DOM.
+					stream.mergeFragments(/*html*/ `
         <main id="main">
           <main-component title="home">
           <div>
@@ -41,14 +43,13 @@ const server = Bun.serve({
           </main-component>
         </main>
         `);
-			});
-		}
+				});
 
-		if (path === "/about") {
-			// Creates a new `ServerSentEventGenerator` instance
-			return ServerSentEventGenerator.stream(req, async (stream) => {
-				// Merges HTML fragments into the DOM.
-				stream.mergeFragments(/*html*/ `
+			case "/about":
+				// Creates a new `ServerSentEventGenerator` instance
+				return ServerSentEventGenerator.stream(req, (stream) => {
+					// Merges HTML fragments into the DOM.
+					stream.mergeFragments(/*html*/ `
         <main id="main">
           <main-component title="about">
           <div>
@@ -57,10 +58,11 @@ const server = Bun.serve({
           </main-component>
         </main>
         `);
-			});
-		}
+				});
 
-		return new Response(Bun.file("./comp/index.html"));
+			default:
+				return new Response(Bun.file("./comp/index.html"));
+		}
 	},
 });
 

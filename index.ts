@@ -1,8 +1,10 @@
 import { ServerSentEventGenerator } from "./lib/serverSentEventGenerator.js";
+import { Database } from "bun:sqlite";
+import type { User } from "./types.ts";
 
 const server = Bun.serve({
 	port: 3000,
-	fetch(req) {
+	async fetch(req) {
 		const url = new URL(req.url);
 		const path = url.pathname;
 
@@ -37,7 +39,11 @@ const server = Bun.serve({
 
 		// Handle routes using switch statement
 		switch (path) {
-			case "/home":
+			case "/home": {
+				const db = new Database("./db/database.sqlite");
+				// get the user from the database
+				const user = db.query("SELECT * FROM users").all() as User[];
+				console.log(user);
 				// Creates a new `ServerSentEventGenerator` instance
 				return ServerSentEventGenerator.stream(req, (stream) => {
 					// Merges HTML fragments into the DOM.
@@ -46,13 +52,15 @@ const server = Bun.serve({
           <main-component title="home">
           <div>
             <p>This is the home page.</p>
+			${user.map((user) => `<p>${user.username}</p>`).join("")}
           </div>
           </main-component>
         </main>
         `);
 				});
+			}
 
-			case "/about":
+			case "/about": {
 				// Creates a new `ServerSentEventGenerator` instance
 				return ServerSentEventGenerator.stream(req, (stream) => {
 					// Merges HTML fragments into the DOM.
@@ -66,6 +74,7 @@ const server = Bun.serve({
         </main>
         `);
 				});
+			}
 
 			default:
 				return new Response(Bun.file("./index.html"));

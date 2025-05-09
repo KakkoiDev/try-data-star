@@ -9,19 +9,26 @@ const server = Bun.serve({
 		// Handle files with correct MIME type
 		if (/[\w\/]+\.\w+/.test(path)) {
 			let mimeType = "text/plain";
+			let directory = "./public";
 			const extension = path.split(".").pop();
 
 			switch (extension) {
 				case "js":
+					mimeType = "application/javascript";
+					break;
 				case "ts":
 					mimeType = "application/javascript";
+					directory = "./components";
 					break;
 				case "css":
 					mimeType = "text/css";
 					break;
+				case "html":
+					mimeType = "text/html";
+					break;
 			}
 
-			return new Response(Bun.file(`./comp${path}`), {
+			return new Response(Bun.file(`${directory}${path}`), {
 				headers: {
 					"Content-Type": mimeType,
 				},
@@ -61,7 +68,7 @@ const server = Bun.serve({
 				});
 
 			default:
-				return new Response(Bun.file("./comp/index.html"));
+				return new Response(Bun.file("./index.html"));
 		}
 	},
 });

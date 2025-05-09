@@ -3,5 +3,5 @@ import "./main.ts";
 import "./navbar.ts";
 // When the DOM is loaded, you can use the component
 document.addEventListener("DOMContentLoaded", () => {
-	console.log("Home component loaded");
+	console.log("Components loaded");
 });

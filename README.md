@@ -1,71 +1,36 @@
 # Data-Star
 
-A lightweight, server-sent events (SSE) based web application framework built with Bun. Data-Star enables dynamic UI updates through server-sent events without requiring a full page reload.
+A lightweight framework using server-sent events (SSE) for dynamic UI updates without page reloads.
 
 ## Features
-
-- Real-time UI updates via Server-Sent Events (SSE)
-- HTML fragment merging into the DOM
+- Real-time UI updates via SSE
+- HTML fragment merging
 - Client-side signal management
-- Lightweight and performant
-- Built with TypeScript
-- Uses Web Components for modular UI
+- Web Components for UI
 
-## Prerequisites
+## Quick Start
+```bash
+# Install dependencies
+bun install
 
-- [Bun](https://bun.sh/) runtime
+# Start server
+bun run start
 
-## Getting Started
+# Initialize database (first time)
+bun run db:setup
 
-1. Clone the repository
-2. Install dependencies:
-   ```
-   bun install
-   ```
-3. Start the development server:
-   ```
-   bun run start
-   ```
-4. Open your browser and navigate to `http://localhost:3000`
+# Seed database (optional)
+bun run db:seed
+```
 
 ## Project Structure
-
-- `/comp` - Frontend components and assets
-  - `index.html` - Main HTML template
-  - `client.js` - Client-side entry point
-  - `main.ts` - Main component definition
-  - `navbar.ts` - Navigation component
-  - `style.css` - Global styles
-- `/lib` - Server-side libraries
-  - `serverSentEventGenerator.ts` - SSE implementation
-  - `abstractServerSentEventGenerator.ts` - Base SSE functionality
+- `/components` - Web components (main.ts, navbar.ts)
+- `/public` - Static assets (client.js, style.css)
+- `/lib` - Server utilities
+- `/db` - Database files
 - `index.ts` - Server entry point
-- `types.ts` - TypeScript type definitions
-- `consts.ts` - Constants and configurations
-
-## How It Works
-
-Data-Star uses Server-Sent Events to establish a one-way connection from the server to the client. When a user navigates to a route, the server streams HTML fragments that are merged into the DOM without a full page reload.
-
-The framework handles:
-- HTML fragment merging
-- DOM manipulation
-- Script execution
-- Signal management
 
 ## Routes
-
-- `/` - Home page with default content
-- `/home` - Home page content
-- `/about` - About page content
-
-## Technologies
-
-- [Bun](https://bun.sh/) - JavaScript runtime and toolkit
-- [TypeScript](https://www.typescriptlang.org/) - Typed JavaScript
-- [Web Components](https://developer.mozilla.org/en-US/docs/Web/Web_Components) - Custom HTML elements
-- [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) - Real-time server updates
-
-## License
-
-MIT 
+- `/` - Home page
+- `/home` - Displays user data
+- `/about` - About page 

@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 class Navbar extends HTMLElement {
 	_items = [];
 

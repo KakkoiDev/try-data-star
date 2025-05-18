@@ -1,0 +1,63 @@
+# Try Data-Star Project Rules
+
+## Project Philosophy
+- Simplicity over complexity (simpli.city principle)
+- Use standard web technologies when possible
+- Minimize dependencies
+- Server-render first, enhance with client functionality as needed
+
+## Component Patterns
+- Root-level folders represent main components/modules
+- Web Components should be used for UI encapsulation
+- Balance Shadow DOM (for encapsulation) and Light DOM (for props and styling) based on component needs
+- Server-rendered components may need special handling for Data-Star features
+
+## Technology Usage
+- BunJS for server runtime and package management
+- Data-Star for both server and client functionality
+- Web Components for UI components
+- Standard HTML, CSS, and JavaScript
+
+## Code Conventions
+- Use Biome for formatting and linting
+- Follow Sonar Qube recommendations for code quality
+- Keep components focused and single-purpose
+- Prefer server rendering when possible
+
+## DOM Strategy
+- Consider component requirements when choosing Shadow vs Light DOM:
+  - Shadow DOM: When encapsulation is primary concern
+  - Light DOM: When server props and external styling are needed
+  - Hybrid approaches may be explored
+
+## Server-Client Relationship
+- Server should handle as much logic as possible
+- Client-side code should focus on UI interactions
+- Minimize state management on the client
+- Use Data-Star features like @get for necessary client-server interaction
+
+## Testing Approach
+- Unit tests for component functionality
+- Integration tests for component interactions
+- End-to-end tests with Playwright for user flows
+
+## Project Structure
+- Components at root level
+- Clear separation of concerns
+- Logical organization by feature/function
+
+## Development Workflow
+- Implement core functionality first
+- Add tests once patterns are established
+- Document decisions and patterns
+- Refine based on practical usage
+
+## Web Search Guidelines
+- Proactively use web_search for:
+  - Project dependencies and libraries information
+  - Best practices for technologies (BunJS, Web Components, Data-Star)
+  - Specific technical challenges identified in the Memory Bank
+  - Standards and conventions for frameworks used in the project
+- Respond to time-related questions using web_search
+- Prioritize using web_search for factual or current information
+- Document important external resources in techContext.md 
